@@ -1,7 +1,7 @@
 package coches;
 
 public class MismoAno implements Criterio {
-	
+
 	private int ano;
 
 	public MismoAno(int ano) {
@@ -10,7 +10,7 @@ public class MismoAno implements Criterio {
 
 	@Override
 	public boolean cumpleCondicion(Coche coche) {
-		
+
 		return coche.getAno() == this.ano;
 	}
 

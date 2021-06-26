@@ -80,7 +80,7 @@ public class Coche implements Comparable<Coche> {
 		}
 		return res;
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("[%s, %d/%d/%d]", this.niv, this.mes, this.dia, this.ano);

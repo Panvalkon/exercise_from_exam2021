@@ -30,7 +30,7 @@ public class FabricantePlus extends Fabricante {
 		for (Set<Coche> coche : super.coches.values()) {
 			for (Coche c : coche) {
 				int times = result.getOrDefault(c.getAno(), 0);
-				result.put(c.getAno(), times+1);
+				result.put(c.getAno(), times + 1);
 			}
 		}
 		return result;
