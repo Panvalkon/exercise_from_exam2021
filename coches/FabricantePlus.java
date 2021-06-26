@@ -1,5 +1,6 @@
 package coches;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -17,7 +18,7 @@ public class FabricantePlus extends Fabricante {
 		Map<Integer, SortedSet<Coche>> result = new HashMap<>();
 		for (Set<Coche> coche : super.coches.values()) {
 			for (Coche c : coche) {
-				result.putIfAbsent(c.getAno(), new TreeSet<Coche>());
+				result.putIfAbsent(c.getAno(), new TreeSet<Coche>(Comparator.reverseOrder()));
 				result.get(c.getAno()).add(c);
 			}
 		}

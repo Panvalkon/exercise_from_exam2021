@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
@@ -62,7 +61,7 @@ public class Fabricante {
 			for (Coche c : mod.getValue()) {
 				sj.add(c.toString());
 			}
-			sb.append(mod.getKey() + ": " + sj.toString());
+			sb.append(mod.getKey() + ": " + sj.toString() + ", ");
 		}
 		return this.name + ": <" + sb + ">";
 	}
@@ -80,7 +79,6 @@ public class Fabricante {
 		String cars[] = line.split("[;]");
 		for (String car : cars) {
 			try (Scanner coche = new Scanner(car)){
-				//coche.useLocale(Locale.ENGLISH);
 				coche.useDelimiter("\\s*[ ,]\\s*");
 				String mod = coche.next();
 				String niv = coche.next();
