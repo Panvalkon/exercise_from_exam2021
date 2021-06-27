@@ -1,5 +1,6 @@
 package coches;
 
-public interface Criterio {
-	boolean cumpleCondicion(Coche coche);
+public interface Criterio
+{
+	public boolean cumpleCondicion(Coche c);
 }

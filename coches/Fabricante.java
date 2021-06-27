@@ -1,127 +1,158 @@
 package coches;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.TreeSet;
 
-public class Fabricante {
-
+public class Fabricante
+{
 	protected Map<String, Set<Coche>> coches;
 	private String name;
 
-	public Fabricante(String name) throws CochesException {
-		if (name == null || name == "") {
-			throw new CochesException("Nobre de fabricante vacÃ­o");
+	public Fabricante(String nombre) throws CochesException
+	{
+		if (nombre == null || nombre.isEmpty())
+		{
+			throw new CochesException("El nombre del fabricante no puede estar vacío");
 		}
-		this.name = name;
-		this.coches = new HashMap<String, Set<Coche>>();
+
+		this.name = nombre;
+		coches = new HashMap<>();
 	}
 
-	public void anadeModelo(String modelo) throws CochesException {
-		if (modelo == null || modelo == "") {
-			throw new CochesException("Invalid modelo");
+	public void anadeModelo(String modelo) throws CochesException
+	{
+		if (modelo == null || modelo.isEmpty())
+		{
+			throw new CochesException("El modelo no puede estar vacío");
 		}
-		if (this.coches.get(modelo) != null) {
-			throw new CochesException("Dicho modelo ya exite");
+
+		if (coches.containsKey(modelo))
+		{
+			throw new CochesException("El modelo ya existe en la colección.");
 		}
-		this.coches.put(modelo, new TreeSet<Coche>());
+
+		coches.put(modelo, new TreeSet<>());
 	}
 
-	public void anadeCoche(Coche coche) throws CochesException {
-		if (coche == null) {
-			throw new CochesException("Coche no vÃ¡lido");
+	public void anadeCoche(Coche coche) throws CochesException
+	{
+		if (coche == null)
+		{
+			throw new CochesException("El coche pasado como argumento no puede ser nulo");
 		}
-		for (Set<Coche> mod : coches.values()) {
-			for (Coche c : mod) {
-				if (c.getNiv().equals(coche.getNiv())) {
-					throw new CochesException("Coche con este Niv ya estÃ¡ en la base de datos");
-				}
+
+		Iterator<String> iter = coches.keySet().iterator();
+		boolean encontrada = false;
+
+		while (!encontrada && iter.hasNext())
+		{
+			if (iter.next().equals(coche.getNIV()))
+			{
+				encontrada = true;
 			}
 		}
-		if (!this.coches.keySet().contains(coche.getModelo())) {
-			this.anadeModelo(coche.getModelo());
+
+		if (encontrada)
+		{
+			throw new CochesException("El coche ya está en la lista");
 		}
-		this.coches.get(coche.getModelo()).add(coche);
+
+		Set<Coche> lista = coches.getOrDefault(coche.getModelo(), new TreeSet<>());
+		lista.add(coche);
+
+		if (!coches.containsKey(coche.getModelo()))
+		{
+			coches.put(coche.getModelo(), lista);
+		}
+
 	}
 
-	@Override
-	public String toString() {
-		StringJoiner sb = new StringJoiner(", ", "<", ">");
-		for (Entry<String, Set<Coche>> mod : this.coches.entrySet()) {
-			StringJoiner sj = new StringJoiner(", ", "<", ">");
-			for (Coche c : mod.getValue()) {
-				sj.add(c.toString());
-			}
-			sb.add(mod.getKey() + ": " + sj.toString());
-		}
-		return this.name + ": " + sb;
-	}
-
-	public void leeCoches(String filename) throws FileNotFoundException {
-		try (Scanner sc = new Scanner(new File(filename))) {
-			while (sc.hasNextLine()) {
+	public void leeCoches(String fichero) throws FileNotFoundException, CochesException
+	{
+		try (Scanner sc = new Scanner(new File(fichero)))
+		{
+			while (sc.hasNextLine())
+			{
 				leeCoches(sc);
 			}
 		}
 	}
 
-	private void leeCoches(Scanner sc) {
-		String line = sc.nextLine();
+	public void leeCoches(Scanner sca) throws CochesException
+	{
+		String line = sca.nextLine();
 		String cars[] = line.split("[;]");
-		for (String car : cars) {
-			try (Scanner coche = new Scanner(car)) {
-				coche.useDelimiter("\\s*[ ,]\\s*");
-				String mod = coche.next();
-				String niv = coche.next();
-				int mes = Integer.parseInt(coche.next());
-				int dia = Integer.parseInt(coche.next());
-				int ano = Integer.parseInt(coche.next());
-				Coche c = new Coche(mod, niv, mes, dia, ano);
-				this.anadeCoche(c);
-			} catch (NoSuchElementException | NumberFormatException | CochesException e) {
-				// Skip in case of errors;
+
+		for (String car : cars)
+		{
+			try (Scanner sc = new Scanner(car))
+			{
+				sc.useDelimiter("[ ,\\r \\n]+");
+				anadeCoche(new Coche(sc.next(), sc.next(), sc.nextInt(), sc.nextInt(), sc.nextInt()));
 			}
 		}
+
 	}
 
-	public void escribeCoches(String filename) throws FileNotFoundException {
-		try (PrintWriter pw = new PrintWriter(filename)) {
+	@Override
+	public String toString()
+	{
+		StringJoiner modelos = new StringJoiner(", ", "<", ">");
+
+		for (Map.Entry<String, Set<Coche>> modelo : coches.entrySet())
+		{
+			StringJoiner coches = new StringJoiner(", ", "<", ">");
+			for (Coche coche : modelo.getValue())
+			{
+				coches.add(coche.toString());
+			}
+			modelos.add(String.format("%1$s: %2$s", modelo.getKey(), coches));
+		}
+		return String.format("%1$s: %2$s", name, modelos);
+	}
+
+	public void escribeCoches(String fichero) throws FileNotFoundException
+	{
+		try (PrintWriter pw = new PrintWriter(fichero))
+		{
 			escribeCoches(pw);
 		}
 	}
 
-	private void escribeCoches(PrintWriter pw) {
-		for (Set<Coche> c : this.coches.values()) {
-			for (Coche coche : c) {
+	private void escribeCoches(PrintWriter pw)
+	{
+		for (Set<Coche> c : coches.values())
+		{
+			for (Coche coche : c)
+			{
 				pw.append(coche.toString() + "\n");
 			}
 		}
 	}
 
-	public Coche[] llama(Criterio crit) {
-		Coche[] res = new Coche[10];
+	public Coche[] llama(Criterio c)
+	{
+		Coche[] arrCoches = new Coche[coches.size()];
 		int pos = 0;
-		for (Set<Coche> c : this.coches.values()) {
-			for (Coche coche : c) {
-				if (crit.cumpleCondicion(coche)) {
-					if (res.length == pos) {
-						res = Arrays.copyOf(res, res.length + 10);
+
+		for (Set<Coche> lista : coches.values())
+		{
+			for (Coche coche : lista)
+			{
+				if (c.cumpleCondicion(coche))
+				{
+					if (arrCoches.length == pos)
+					{
+						arrCoches = Arrays.copyOf(arrCoches, 2 * arrCoches.length);
 					}
-					res[pos] = coche;
+					
+					arrCoches[pos] = coche;
 					pos++;
 				}
 			}
 		}
-		res = Arrays.copyOf(res, pos);
-		return res;
+		return Arrays.copyOf(arrCoches, pos);
 	}
+
 }
