@@ -1,88 +1,93 @@
 package coches;
 
-public class Coche implements Comparable<Coche> {
-	private final String modelo;
-	private final String niv;
-	private final int ano;
-	private final int mes;
-	private final int dia;
-
-	public Coche(String modelo, String niv, int mes, int dia, int ano) throws CochesException {
-		if (niv == null || niv.length() != 17) {
-			throw new CochesException("Invalid niv");
+public class Coche implements Comparable<Coche>
+{
+	private final String modelo, NIV;
+	private final int ano, mes, dia;
+	
+	public Coche(String modelo, String NIV, int mes, int dia, int ano) throws CochesException
+	{
+		if (modelo == null || modelo.isEmpty())
+		{
+			throw new CochesException("El modelo no puede estar vacío");
 		}
-		String newNiv = niv.toUpperCase();
-		if (newNiv.contains("O") || newNiv.contains("I") || newNiv.contains("Q")) {
-			throw new CochesException("Used illegal characters in niv number");
-		}
-		this.niv = newNiv;
-		if (modelo == null || modelo == "") {
-			throw new CochesException("Invalid modelo");
-		}
+		
 		this.modelo = modelo;
+		
+		if (NIV.toUpperCase().matches(".*[OIQ]+.*") || NIV.length() != 17)
+		{
+			throw new CochesException("El niv no puede incluir las letras I/O/Q");
+		}
+		
+		this.NIV = NIV.toUpperCase();
 		this.ano = ano;
-		if (mes < 1 || mes > 12) {
-			throw new CochesException("Mes out of range");
+		
+		if (dia < 1 || dia > 31)
+		{
+			throw new CochesException("Días invalidos, debe estar entre 1 y 31");	
 		}
-		this.mes = mes;
-		if (dia < 1 || dia > 31) {
-			throw new CochesException("Dia out of range");
-		}
+		
 		this.dia = dia;
+		
+		if (mes < 1 || mes > 12)
+		{
+			throw new CochesException("Mes invalido, debe estar entre 1 y 12");
+		}
+		
+		this.mes = mes;
 	}
-
-	public String getModelo() {
+	public String getModelo()
+	{
 		return modelo;
 	}
-
-	public String getNiv() {
-		return niv;
+	public String getNIV()
+	{
+		return NIV;
 	}
-
-	public int getAno() {
+	public int getAno()
+	{
 		return ano;
 	}
-
-	public int getMes() {
+	public int getMes()
+	{
 		return mes;
 	}
-
-	public int getDia() {
+	public int getDia()
+	{
 		return dia;
 	}
-
 	@Override
-	public boolean equals(Object o) {
-		boolean res = false;
-		if (o instanceof Coche) {
-			Coche c = (Coche) o;
-			res = this.niv.equals(c.niv) && this.ano == c.ano && this.mes == c.mes && this.dia == c.dia;
+	public int hashCode()
+	{
+		return NIV.hashCode() + dia + mes + ano;
+	}
+	@Override
+	public boolean equals(Object o)
+	{
+		return (o instanceof Coche) && ((Coche) o).NIV.equals(NIV)
+				&& ((Coche) o).ano == ano && ((Coche) o).dia == dia &&
+				((Coche) o).mes == mes;
+	}
+	@Override
+	public int compareTo(Coche o)
+	{
+		int res = o.dia + o.mes + o.ano,
+			res2 = dia + mes + ano,
+			
+			resultado = Integer.compare(res, res2);
+		
+		if (resultado == 0)
+		{
+			resultado = modelo.compareToIgnoreCase(o.modelo);
 		}
-		return res;
+		
+		return resultado;
+	}
+	@Override
+	public String toString()
+	{
+		// "[5GZCZ43D13S812715, 5/27/2020]
+		return "[" + NIV + ", " + mes + "/" + dia + "/" + ano + "]";
 	}
 
-	@Override
-	public int hashCode() {
-		int res = 0;
-		res = this.niv.hashCode() + this.ano * 3 + this.mes * 5 + this.dia * 7;
-		return res;
-	}
-
-	@Override
-	public int compareTo(Coche o) {
-		int res = 0;
-		res = Integer.compare(this.ano, o.ano);
-		if (res == 0) {
-			res = Integer.compare(this.mes, o.mes);
-			if (res == 0) {
-				res = Integer.compare(this.dia, o.dia);
-			}
-		}
-		return res;
-	}
-
-	@Override
-	public String toString() {
-		return String.format("[%s, %d/%d/%d]", this.niv, this.mes, this.dia, this.ano);
-	}
 }
